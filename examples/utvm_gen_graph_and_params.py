@@ -64,7 +64,8 @@ class TVMFlow:
         self.opt_level = 3
         self.local = False
         if self.local:
-            self.target = "llvm"
+            #self.target = "llvm"
+            self.target = "llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard"
         else:
             self.target = tvm.target.target.micro("host")
 
