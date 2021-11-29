@@ -19,5 +19,5 @@ run_test() {
     cd ../..
 }
 
+#run_test cifar10.tflite
 run_test sine_model.tflite
-run_test cifar10.tflite

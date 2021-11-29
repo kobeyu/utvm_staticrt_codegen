@@ -99,6 +99,12 @@ class TVMFlow:
             cfg = { "tir.disable_vectorize": True }
 
         with tvm.transform.PassContext(opt_level=self.opt_level, config=cfg):
+            #self.target = "llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard"
+            #ll_tgt = 'llvm -target=riscv64-unknown-elf -system-lib'
+            ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
+            graph, lib, params = relay.build(self.mod, target=ll_tgt)
+            with open('./test.ll', 'w') as _f:
+                _f.write(lib.get_source())
             c_mod = relay.build(self.mod, target=self.target, params=self.params)
             self.graph = c_mod.get_graph_json()
             self.c_params = c_mod.get_params()
