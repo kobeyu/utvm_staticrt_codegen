@@ -1,0 +1,108 @@
+{
+  "nodes": [
+    {
+      "op": "null", 
+      "name": "x0", 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "x1", 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "x2", 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "x3", 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "p0", 
+      "inputs": []
+    }, 
+    {
+      "op": "tvm_op", 
+      "name": "tvmgen_default_fused_vision_non_max_suppression", 
+      "attrs": {
+        "num_outputs": "1", 
+        "num_inputs": "5", 
+        "flatten_data": "0", 
+        "func_name": "tvmgen_default_fused_vision_non_max_suppression", 
+        "hash": "1bb40d7b628860e0"
+      }, 
+      "inputs": [
+        [
+          0, 
+          0, 
+          0
+        ], 
+        [
+          1, 
+          0, 
+          0
+        ], 
+        [
+          2, 
+          0, 
+          0
+        ], 
+        [
+          3, 
+          0, 
+          0
+        ], 
+        [
+          4, 
+          0, 
+          0
+        ]
+      ]
+    }
+  ], 
+  "arg_nodes": [0, 1, 2, 3, 4], 
+  "heads": [
+    [
+      5, 
+      0, 
+      0
+    ]
+  ], 
+  "attrs": {
+    "dltype": [
+      "list_str", 
+      [
+        "float32", 
+        "int32", 
+        "int32", 
+        "int32", 
+        "float32", 
+        "float32"
+      ]
+    ], 
+    "device_index": [
+      "list_int", 
+      [1, 1, 1, 1, 1, 1]
+    ], 
+    "storage_id": [
+      "list_int", 
+      [0, 1, 2, 3, 4, 5]
+    ], 
+    "shape": [
+      "list_shape", 
+      [
+        [1, 5, 6], 
+        [1], 
+        [1, 5], 
+        [], 
+        [], 
+        [1, 5, 6]
+      ]
+    ]
+  }, 
+  "node_row_ptr": [0, 1, 2, 3, 4, 5, 6]
+}
