@@ -3,6 +3,7 @@ import numpy as np
 import tvm
 from tvm import relay, te
 from tvm.relay.testing import run_infer_type
+from tvm.micro import export_model_library_format
 
 
 def verify_nms(
@@ -35,6 +36,7 @@ def verify_nms(
     func = relay.Function([x0, x1, x2, x3], z)
 
     ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
+    #ll_tgt = 'llvm' #x86
 
     graph, lib, params = relay.build(func, target=ll_tgt)
 
