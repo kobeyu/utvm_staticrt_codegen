@@ -3,13 +3,13 @@ set -e
 
 LLC=/home/kobeyu/workspace/pllab_tvm_rvp/toolchain/build-llvm-rvp/llvm-rvp/bin/llc
 
-OUT_FDR="out_nms"
+OUT_DIR="out_nms"
 
 run_test() {
     python3 gen_nms_graph_and_params.py
-    ${LLC} --march="riscv64" --mattr=+F,+M out_nms/nms.ll -o out_nms/nms.s
-    #${LLC} $OUT_FDR/nms.ll -o $OUT_FDR/nms.s
-    ../build/utvm_staticrt_codegen $OUT_FDR/nms.graph $OUT_FDR/nms.params $OUT_FDR/staticrt.c 100
+    #${LLC} --march="riscv64" --mattr=+F,+M out_nms/nms.ll -o out_nms/nms.s
+    #${LLC} $OUT_DIR/nms.ll -o $OUT_DIR/nms.s
+    ../build/utvm_staticrt_codegen $OUT_DIR/graph.json $OUT_DIR/params.bin $OUT_DIR/staticrt.c $(cat $OUT_DIR/workspace_size.txt)
 
     TVM_DIR=$(grep TVM_DIR ../build/CMakeCache.txt)
 
@@ -24,7 +24,6 @@ run_test() {
     #cd ../..
 }
 
-mkdir -p $OUT_FDR
 
 #run_test cifar10.tflite
-run_test sine_model.tflite
+run_test

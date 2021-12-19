@@ -1,9 +1,15 @@
 import os
 import numpy as np
+import shutil
+import tarfile
+import json
+import codegen
+
 import tvm
 from tvm import relay, te
 from tvm.relay.testing import run_infer_type
 from tvm.micro import export_model_library_format
+from tvm.contrib import utils as tvm_utils
 
 
 def verify_nms(
@@ -35,24 +41,74 @@ def verify_nms(
 
     func = relay.Function([x0, x1, x2, x3], z)
 
-    ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
+    #generate ll
+    #ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
     #ll_tgt = 'llvm' #x86
+
+    #generate c code
+    ll_tgt = tvm.target.target.micro("host")
 
     graph, lib, params = relay.build(func, target=ll_tgt)
 
     model_name = "nms"
-    out_dir='./out_nms/'
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
+    out_dir='out_nms'
+    #if not os.path.exists(out_dir):
+    #    os.mkdir(out_dir)
 
-    with open(out_dir + model_name + '.ll', 'w') as _f:
-        _f.write(lib.get_source())
+    #with open(out_dir + model_name + '.ll', 'w') as _f:
+    #    _f.write(lib.get_source())
 
-    with open(out_dir+ model_name + '.graph', 'w') as _f:
-        _f.write(graph)
+    #with open(out_dir+ model_name + '.graph', 'w') as _f:
+    #    _f.write(graph)
 
-    with open(out_dir + model_name + '.params', 'wb') as _f:
-        _f.write(relay.save_param_dict(params))
+    #with open(out_dir + model_name + '.params', 'wb') as _f:
+    #    _f.write(relay.save_param_dict(params))
+
+    c_mod = relay.build(func, target=ll_tgt, params=params)
+    c_params = c_mod.get_graph_json()
+    #export_model_library_format(c_mod, out_dir + model_name + "archive.tar")
+
+    mlfDir = tvm_utils.tempdir().temp_dir
+    os.makedirs(mlfDir, exist_ok=True)
+    tarFile = os.path.join(mlfDir, "archive.tar")
+    export_model_library_format(c_mod, tarFile)
+    tarfile.open(tarFile).extractall(mlfDir)
+    with open(os.path.join(mlfDir, "metadata.json")) as f:
+        metadata = json.load(f)
+    workspaceBytes = 0
+    for op in metadata["memory"]["functions"]["operator_functions"]:
+        workspaceBytes = max(workspaceBytes, op["workspace"][0]["workspace_size_bytes"])
+
+
+    if os.path.exists(os.path.join(out_dir, "params.bin")):
+        shutil.rmtree(out_dir)
+
+    shutil.copytree(os.path.join(mlfDir, "codegen", "host", "src"), out_dir)
+    # TODO: remove this temporary workaround for old tvm version
+    legacy = False
+    if os.path.exists(os.path.join(mlfDir, "src", "relay.txt")):
+        shutil.copy2(os.path.join(mlfDir, "src", "relay.txt"), os.path.join(out_dir, "relay.txt"))
+    else:
+        legacy = True
+        shutil.copy2(os.path.join(mlfDir, "relay.txt"), os.path.join(out_dir, "relay.txt"))
+    shutil.copy2(os.path.join(mlfDir, "metadata.json"), os.path.join(out_dir, "metadata.json"))
+
+    if graph:
+        with open(os.path.join(out_dir, "graph.json"), "w") as f:
+            f.write(graph)
+
+    with open(os.path.join(out_dir, "metadata.json")) as json_f:
+        metadata = json.load(json_f)
+
+    with open(os.path.join(out_dir, "params.bin"), "wb") as f:
+        f.write(relay.save_param_dict(params))
+    with open(os.path.join(out_dir, "workspace_size.txt"), "w") as f:
+        f.write(str(workspaceBytes))
+    #codegen.generateTargetCode(out_dir + "/runtime_wrapper.c", graph, relay.save_param_dict(c_params), self.modelInfo)
+
+
+
+
 
     #func = run_infer_type(func)
     #func_indices = relay.Function([x0, x1, x2, x3], z_indices)
