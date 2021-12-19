@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
 PROJECT(example_target_src C ASM)
 
+set(CMAKE_ASM_COMPILER /home/kobeyu/workspace/pllab_tvm_rvp/toolchain/riscv64-unknown-elf/bin/riscv64-unknown-elf-gcc)
+set(CMAKE_C_COMPILER /home/kobeyu/workspace/pllab_tvm_rvp/toolchain/riscv64-unknown-elf/bin/riscv64-unknown-elf-gcc)
+set(CMAKE_CXX_COMPILER /home/kobeyu/workspace/pllab_tvm_rvp/toolchain/riscv64-unknown-elf/bin/riscv64-unknown-elf-g++)
+
 SET(CMAKE_EXE_LINKER_FLAGS "-static")
 
 INCLUDE(../../cmake/LinkTVM.cmake)
@@ -17,6 +21,7 @@ FILE(GLOB TVM_KERNELS
     # New model will have model name prefix
      ${TVM_OUT_DIR}/*_lib*.c
      ${TVM_OUT_DIR}/*_lib*.cc
+     ${TVM_OUT_DIR}/lib.s
 )
 
 ADD_EXECUTABLE(${PROJECT_NAME}
