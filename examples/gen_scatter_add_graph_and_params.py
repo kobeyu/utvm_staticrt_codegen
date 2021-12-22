@@ -59,7 +59,8 @@ def compile_c(func):
         f.write(str(workspaceBytes))
 
 def compile_ll(func):
-    ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
+    #ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu -mcpu=generic-rv64 -mfloat-abi=hard'
+    ll_tgt = 'llvm -mtriple=riscv64-unknown-elf-gnu  --system-lib'
     #ll_tgt = 'llvm' #x86
     graph, lib, params = relay.build(func, target=ll_tgt)
     if not os.path.exists(OUT_DIR):
